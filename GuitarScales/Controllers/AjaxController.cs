@@ -631,74 +631,74 @@ namespace GuitarScales.Controllers
 
                     i = j;
                 }
-            }
 
-            Table<GuitarBagliAkor> tableBagliAkor = new Table<GuitarBagliAkor>();
-            tableBagliAkor.WhereList.Add(new Where(GuitarBagliAkorColumns.ModID, modid));
-            tableBagliAkor.WhereList.Add(new Where(GuitarBagliAkorColumns.NotaAdet, tip));
+                Table<GuitarBagliAkor> tableBagliAkor = new Table<GuitarBagliAkor>();
+                tableBagliAkor.WhereList.Add(new Where(GuitarBagliAkorColumns.ModID, modid));
+                tableBagliAkor.WhereList.Add(new Where(GuitarBagliAkorColumns.NotaAdet, tip));
 
-            tableBagliAkor.Select();
+                tableBagliAkor.Select();
 
-            if (!tableBagliAkor.HasData)
-            {
-                switch (tip)
+                if (!tableBagliAkor.HasData)
                 {
-                    case 3:
-                        akorlar = Akorlar.TriadOlustur(notalar);
-                        break;
-                    case 4:
-                        akorlar = Akorlar.TetrachordOlustur(notalar);
-                        break;
-                    case 5:
-                        akorlar = Akorlar.PentachordOlustur(notalar);
-                        break;
-                    case 6:
-                        akorlar = Akorlar.HektachordOlustur(notalar);
-                        break;
-                    default:
-                        akorlar = Akorlar.TriadOlustur(notalar);
-                        break;
-                }
-
-                foreach (GuitarAkor item in akorlar)
-                {
-                    tableBagliAkor = new Table<GuitarBagliAkor>();
-                    tableBagliAkor.Values = new GuitarBagliAkor()
+                    switch (tip)
                     {
-                        AkorID = item.ID,
-                        ModID = modid,
-                        NotaAdet = tip,
-                        Derece = DereceBul(notalar, item.Nota)
-                    };
-
-                    tableBagliAkor.Insert();
-                }
-            }
-            else
-            {
-                List<GuitarBagliAkor> listBagliAkor = (List<GuitarBagliAkor>)tableBagliAkor.Data;
-
-                foreach (GuitarBagliAkor item in listBagliAkor)
-                {
-                    Table<GuitarAkor> tableAkor = new Table<GuitarAkor>();
-                    GuitarAkor itemAkor = new GuitarAkor();
-
-                    tableAkor.SelectSettings.Top = 1;
-                    tableAkor.WhereList.Add(new Where(GuitarAkorColumns.ID, item.AkorID));
-                    tableAkor.Select();
-
-                    if (tableAkor.HasData)
-                    {
-                        itemAkor = ((List<GuitarAkor>)tableAkor.Data).FirstOrDefault();
-                        int akorNota = notalar.ToArray()[item.Derece];
-                        itemAkor.Nota = akorNota;
-                        itemAkor.NotaIsim = Notalar.NotaDon(akorNota);
+                        case 3:
+                            akorlar = Akorlar.TriadOlustur(notalar);
+                            break;
+                        case 4:
+                            akorlar = Akorlar.TetrachordOlustur(notalar);
+                            break;
+                        case 5:
+                            akorlar = Akorlar.PentachordOlustur(notalar);
+                            break;
+                        case 6:
+                            akorlar = Akorlar.HektachordOlustur(notalar);
+                            break;
+                        default:
+                            akorlar = Akorlar.TriadOlustur(notalar);
+                            break;
                     }
 
-                    akorlar.Add(itemAkor);
+                    foreach (GuitarAkor item in akorlar)
+                    {
+                        tableBagliAkor = new Table<GuitarBagliAkor>();
+                        tableBagliAkor.Values = new GuitarBagliAkor()
+                        {
+                            AkorID = item.ID,
+                            ModID = modid,
+                            NotaAdet = tip,
+                            Derece = DereceBul(notalar, item.Nota)
+                        };
+
+                        tableBagliAkor.Insert();
+                    }
+                }
+                else
+                {
+                    List<GuitarBagliAkor> listBagliAkor = (List<GuitarBagliAkor>)tableBagliAkor.Data;
+
+                    foreach (GuitarBagliAkor item in listBagliAkor)
+                    {
+                        Table<GuitarAkor> tableAkor = new Table<GuitarAkor>();
+                        GuitarAkor itemAkor = new GuitarAkor();
+
+                        tableAkor.SelectSettings.Top = 1;
+                        tableAkor.WhereList.Add(new Where(GuitarAkorColumns.ID, item.AkorID));
+                        tableAkor.Select();
+
+                        if (tableAkor.HasData)
+                        {
+                            itemAkor = ((List<GuitarAkor>)tableAkor.Data).FirstOrDefault();
+                            int akorNota = notalar.ToArray()[item.Derece];
+                            itemAkor.Nota = akorNota;
+                            itemAkor.NotaIsim = Notalar.NotaDon(akorNota);
+                        }
+
+                        akorlar.Add(itemAkor);
+                    }
                 }
             }
-
+            
             return Json(akorlar);
         }
 
