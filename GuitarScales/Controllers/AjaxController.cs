@@ -1,6 +1,7 @@
 ﻿using Lib;
 using Models.GuitarAkorModel;
 using Models.GuitarAralikModel;
+using Models.GuitarBagliAkorModel;
 using Models.GuitarModModel;
 using Models.GuitarNotaModel;
 using Models.GuitarPlanAkorModel;
@@ -607,7 +608,7 @@ namespace GuitarScales.Controllers
 
         public JsonResult AkorOlustur(int tip, int nota, int modid)
         {
-            List<GuitarAkor> akorlar;
+            List<GuitarAkor> akorlar = new List<GuitarAkor>();
             List<int> notalar = new List<int>() { nota };
 
             Table<GuitarMod> tableMod = new Table<GuitarMod>();
@@ -632,26 +633,92 @@ namespace GuitarScales.Controllers
                 }
             }
 
-            switch (tip)
+            Table<GuitarBagliAkor> tableBagliAkor = new Table<GuitarBagliAkor>();
+            tableBagliAkor.WhereList.Add(new Where(GuitarBagliAkorColumns.ModID, modid));
+            tableBagliAkor.WhereList.Add(new Where(GuitarBagliAkorColumns.NotaAdet, tip));
+
+            tableBagliAkor.Select();
+
+            if (!tableBagliAkor.HasData)
             {
-                case 3:
-                    akorlar = Akorlar.TriadOlustur(notalar);
-                    break;
-                case 4:
-                    akorlar = Akorlar.TetrachordOlustur(notalar);
-                    break;
-                case 5:
-                    akorlar = Akorlar.PentachordOlustur(notalar);
-                    break;
-                case 6:
-                    akorlar = Akorlar.HektachordOlustur(notalar);
-                    break;
-                default:
-                    akorlar = Akorlar.TriadOlustur(notalar);
-                    break;
+                switch (tip)
+                {
+                    case 3:
+                        akorlar = Akorlar.TriadOlustur(notalar);
+                        break;
+                    case 4:
+                        akorlar = Akorlar.TetrachordOlustur(notalar);
+                        break;
+                    case 5:
+                        akorlar = Akorlar.PentachordOlustur(notalar);
+                        break;
+                    case 6:
+                        akorlar = Akorlar.HektachordOlustur(notalar);
+                        break;
+                    default:
+                        akorlar = Akorlar.TriadOlustur(notalar);
+                        break;
+                }
+
+                foreach (GuitarAkor item in akorlar)
+                {
+                    tableBagliAkor = new Table<GuitarBagliAkor>();
+                    tableBagliAkor.Values = new GuitarBagliAkor()
+                    {
+                        AkorID = item.ID,
+                        ModID = modid,
+                        NotaAdet = tip,
+                        Derece = DereceBul(notalar, item.Nota)
+                    };
+
+                    tableBagliAkor.Insert();
+                }
+            }
+            else
+            {
+                List<GuitarBagliAkor> listBagliAkor = (List<GuitarBagliAkor>)tableBagliAkor.Data;
+
+                foreach (GuitarBagliAkor item in listBagliAkor)
+                {
+                    Table<GuitarAkor> tableAkor = new Table<GuitarAkor>();
+                    GuitarAkor itemAkor = new GuitarAkor();
+
+                    tableAkor.SelectSettings.Top = 1;
+                    tableAkor.WhereList.Add(new Where(GuitarAkorColumns.ID, item.AkorID));
+                    tableAkor.Select();
+
+                    if (tableAkor.HasData)
+                    {
+                        itemAkor = ((List<GuitarAkor>)tableAkor.Data).FirstOrDefault();
+                        int akorNota = notalar.ToArray()[item.Derece];
+                        itemAkor.Nota = akorNota;
+                        itemAkor.NotaIsim = Notalar.NotaDon(akorNota);
+                    }
+
+                    akorlar.Add(itemAkor);
+                }
             }
 
             return Json(akorlar);
+        }
+
+        private int DereceBul(List<int> notalar, int nota)
+        {
+            int i = 0;
+            int derece = 0;
+
+            foreach (int item in notalar)
+            {
+                if (item == nota)
+                {
+                    derece = i;
+                    break;
+                }
+
+                i++;
+            }
+
+            return derece;
         }
 
         public class Plan

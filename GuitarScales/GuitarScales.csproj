@@ -116,6 +116,7 @@
     <Content Include="Content\files\mp3\8.mp3" />
     <Content Include="Content\files\mp3\9.mp3" />
     <Content Include="Content\img\fretboard.JPG" />
+    <Content Include="Content\img\loading.gif" />
     <Content Include="Content\js\jquery\jquery-1.10.2.min.js" />
     <Content Include="Content\js\jquery\json2.js" />
     <Content Include="Content\js\main.js" />
@@ -137,6 +138,7 @@
     <Compile Include="Lib\Nota.cs" />
     <Compile Include="Models\GuitarAralikModel.cs" />
     <Compile Include="Models\GuitarAkorModel.cs" />
+    <Compile Include="Models\GuitarBagliAkorModel.cs" />
     <Compile Include="Models\GuitarModModel.cs" />
     <Compile Include="Models\GuitarNotaModel.cs" />
     <Compile Include="Models\GuitarPlanAkorModel.cs" />
