@@ -154,8 +154,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Kontroller\_Scriptler.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <Content Include="Views\Home\Login.cshtml" />
+    <None Include="Properties\PublishProfiles\PublishGuitarScales.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
