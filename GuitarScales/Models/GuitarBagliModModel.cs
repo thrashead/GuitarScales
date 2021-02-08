@@ -1,28 +1,26 @@
 using TDFramework.Common.TDModel;
 using TDFramework.Common.Attributes;
 
-namespace Models.GuitarBagliAkorModel
+namespace Models.GuitarBagliModModel
 {
-	public class GuitarBagliAkor : ITDModel
+	public class GuitarBagliMod : ITDModel
 	{
 		[PKey]
 		[IDColumn]
 		public int ID { get; set; }
 		public int ModID { get; set; }
-		public int AkorID { get; set; }
+		public int BagliModID { get; set; }
 		public int Derece { get; set; }
-		public int NotaAdet { get; set; }
 
 		[AggregateColumn]
 		public dynamic AggColumn { get; set; }
 	}
 
-	public enum GuitarBagliAkorColumns
+	public enum GuitarBagliModColumns
 	{
 		ID,
 		ModID,
-		AkorID,
-		Derece,
-		NotaAdet
+		BagliModID,
+		Derece
 	}
 }

@@ -138,6 +138,7 @@
     <Compile Include="Lib\Nota.cs" />
     <Compile Include="Models\GuitarAralikModel.cs" />
     <Compile Include="Models\GuitarAkorModel.cs" />
+    <Compile Include="Models\GuitarBagliModModel.cs" />
     <Compile Include="Models\GuitarBagliAkorModel.cs" />
     <Compile Include="Models\GuitarModModel.cs" />
     <Compile Include="Models\GuitarNotaModel.cs" />

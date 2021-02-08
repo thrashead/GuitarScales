@@ -2,6 +2,7 @@
 using Models.GuitarAkorModel;
 using Models.GuitarAralikModel;
 using Models.GuitarBagliAkorModel;
+using Models.GuitarBagliModModel;
 using Models.GuitarModModel;
 using Models.GuitarNotaModel;
 using Models.GuitarPlanAkorModel;
@@ -698,8 +699,105 @@ namespace GuitarScales.Controllers
                     }
                 }
             }
-            
+
             return Json(akorlar);
+        }
+
+        public JsonResult ModOlustur(int nota, int modid)
+        {
+            List<GuitarMod> modlar = new List<GuitarMod>();
+            List<int> notalar = new List<int>() { nota };
+
+            Table<GuitarMod> tableMod = new Table<GuitarMod>();
+            tableMod.WhereList.Add(new Where(GuitarModColumns.ID, modid));
+            tableMod.SelectSettings.Top = 1;
+
+            tableMod.Select();
+
+            if (tableMod.HasData)
+            {
+                GuitarMod mod = ((List<GuitarMod>)tableMod.Data).FirstOrDefault();
+
+                int i = nota;
+
+                foreach (string item in mod.Formul.Split(','))
+                {
+                    int j = (i + item.ToInteger()) % 12 == 0 ? 12 : (i + item.ToInteger()) % 12;
+
+                    notalar.Add(j);
+
+                    i = j;
+                }
+
+                Table<GuitarBagliMod> tableBagliMod = new Table<GuitarBagliMod>();
+                tableBagliMod.WhereList.Add(new Where(GuitarBagliModColumns.ModID, modid));
+
+                tableBagliMod.Select();
+
+                if (!tableBagliMod.HasData)
+                {
+                    if (notalar.Count >= 5)
+                        modlar = Modlar.PentaModOlustur(notalar);
+
+                    if (notalar.Count >= 6)
+                        modlar.AddRange(Modlar.HektaModOlustur(notalar));
+
+                    if (notalar.Count >= 7)
+                        modlar.AddRange(Modlar.HeptaModOlustur(notalar));
+
+                    if (notalar.Count >= 8)
+                        modlar.AddRange(Modlar.OktaModOlustur(notalar));
+
+                    List<GuitarMod> tempMods = modlar.Where(a => a.ID == modid && a.Nota == nota).ToList();
+
+                    if (tempMods.Count > 0)
+                        modlar.RemoveAt(modlar.IndexOf(tempMods.FirstOrDefault()));
+
+                    foreach (GuitarMod item in modlar)
+                    {
+                        if (item.ID != modid)
+                        {
+                            tableBagliMod = new Table<GuitarBagliMod>();
+
+                            tableBagliMod.Values = new GuitarBagliMod()
+                            {
+                                ModID = modid,
+                                BagliModID = item.ID,
+                                Derece = DereceBul(notalar, item.Nota)
+                            };
+
+                            tableBagliMod.Insert();
+                        }
+                    }
+                }
+                else
+                {
+                    List<GuitarBagliMod> listBagliMod = (List<GuitarBagliMod>)tableBagliMod.Data;
+
+                    foreach (GuitarBagliMod item in listBagliMod)
+                    {
+                        GuitarMod itemMod = new GuitarMod();
+                        tableMod = new Table<GuitarMod>();
+
+                        int modNota = notalar.ToArray()[item.Derece];
+
+                        tableMod.SelectSettings.Top = 1;
+                        tableMod.WhereList.Add(new Where(GuitarModColumns.ID, item.BagliModID));
+                        tableMod.Select();
+
+                        if (tableMod.HasData)
+                        {
+                            itemMod = ((List<GuitarMod>)tableMod.Data).FirstOrDefault();
+                            itemMod.Nota = modNota;
+                            itemMod.NotaIsim = Notalar.NotaDon(modNota);
+                        }
+
+                        modlar.Add(itemMod);
+                    }
+                }
+            }
+
+            return Json(modlar);
         }
 
         private int DereceBul(List<int> notalar, int nota)
